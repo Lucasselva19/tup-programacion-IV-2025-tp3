@@ -1,0 +1,16 @@
+@url=http://localhost:3000
+
+GET {{url}}/materias
+
+### Consultar por un alumno
+GET {{url}}/materias/2
+
+### Crear alumno
+POST {{url}}/materias
+Content-Type: application/json
+
+{
+    "nombre":"Lengua",
+    "año": "2025",
+    "codigo": "4827569"
+}
