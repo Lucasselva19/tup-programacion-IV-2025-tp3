@@ -1,0 +1,26 @@
+@url=http://localhost:3000
+
+### Consultar notas
+GET {{url}}/notas/alumnos/1/materias/2
+
+### Poner notas
+POST {{url}}/notas
+Content-Type: application/json
+
+{
+    "alumnos_id": 1,
+    "materias_id": 1,
+    "nota1": 8,
+    "nota2": 9,
+    "nota3": 10
+}
+
+### Modificar notas
+PUT {{url}}/notas/alumnos/1/materias/2
+Content-Type: application/json
+
+{
+    "nota1": 10,
+    "nota2": 10,
+    "nota3": 10
+}

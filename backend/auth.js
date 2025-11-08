@@ -28,7 +28,7 @@ export const verificarAutenticacion = passport.authenticate("jwt", {
 
 router.post(
   "/login",
-  body("nombre").isAlpha("es-ES").isLength({ max: 50 }),
+  body("mail").isEmail().isLength({ max: 50 }),
   body("password").isStrongPassword({
     minLength: 8,
     minLowercase: 1,
@@ -38,11 +38,11 @@ router.post(
   }),
   verificarValidaciones,
   async (req, res) => {
-    const { nombre, password } = req.body;
+    const { mail, password } = req.body;
 
     const [usuarios] = await db.execute(
-      "SELECT * FROM usuarios WHERE nombre=?",
-      [nombre]
+      "SELECT * FROM usuarios WHERE mail=?",
+      [mail]
     );
 
     if (usuarios.length === 0) {
