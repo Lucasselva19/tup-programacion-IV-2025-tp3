@@ -2,11 +2,19 @@ import express from "express";
 import { db } from "./db.js";
 import { validarId, verificarValidaciones } from "./validaciones.js";
 import { body, param } from "express-validator";
+import { verificarAutenticacion } from "./auth.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const [rows] = await db.execute("SELECT * FROM materias");
+router.get("/", verificarAutenticacion, async (req, res) => {
+  const { buscar } = req.query;
+    let rows;
+
+    if (buscar) {
+      [rows] = await db.execute("SELECT * FROM materias WHERE nombre LIKE ?", [`%${buscar}%`]);
+    } else {
+      [rows] = await db.execute("SELECT * FROM materias");
+    }
   res.json({
     success: true,
     data: rows,
@@ -15,6 +23,7 @@ router.get("/", async (req, res) => {
 
 router.get(
   "/:id",
+  verificarAutenticacion,
   validarId,
   verificarValidaciones,
   async (req, res) => {
@@ -36,6 +45,7 @@ router.get(
 
 router.post(
   "/",
+  verificarAutenticacion,
   body("nombre").isAlphanumeric("es-ES").isLength({ max: 50 }),
   body("año").isNumeric().isLength({ min: 4, max: 4 }),
   body("codigo").isNumeric(),
@@ -57,6 +67,7 @@ router.post(
 
 router.put(
   "/:id",
+  verificarAutenticacion,
   validarId,
   body("nombre").isAlphanumeric("es-ES").isLength({ max: 50 }),
   body("año").isNumeric().isLength({ min: 4, max: 4 }),
@@ -85,6 +96,7 @@ router.put(
 
 router.delete(
   "/:id",
+  verificarAutenticacion,
   validarId,
   verificarValidaciones,
   async (req, res) => {

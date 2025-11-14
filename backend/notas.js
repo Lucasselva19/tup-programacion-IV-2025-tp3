@@ -9,8 +9,31 @@ const router = express.Router();
 const validarAlumnosId = param("alumnos_id").isInt({ min: 1 });
 const validarMateriasId = param("materias_id").isInt({ min: 1 });
 
+
+router.get("/", verificarAutenticacion, async (req, res) => {
+  const { buscar } = req.query;
+  let sql = "SELECT ur.alumnos_id, ur.materias_id, u.nombre, u.apellido, r.nombre AS materia, ur.nota1, ur.nota2, ur.nota3 FROM notas ur JOIN alumnos u ON ur.alumnos_id=u.id JOIN materias r ON ur.materias_id=r.id";
+  let params = [];
+
+  if (buscar) {
+    sql += " WHERE u.nombre LIKE ? OR u.apellido LIKE ? OR r.nombre LIKE ?";
+    const searchTerm = `%${buscar}%`;
+    params = [searchTerm, searchTerm, searchTerm];
+  }
+
+  const [rows] = await db.execute(sql, params);
+
+
+
+  res.json({
+    success: true,
+    data: rows,
+  });
+});
+
 router.get(
   "/alumnos/:alumnos_id/materias/:materias_id",
+  verificarAutenticacion,
   validarAlumnosId,
   validarMateriasId,
   verificarValidaciones,
@@ -19,6 +42,7 @@ router.get(
 
 router.post (
   "/alumnos/:alumnos_id/materias/:materias_id",
+  verificarAutenticacion,
   validarAlumnosId,
   validarMateriasId,
   verificarValidaciones,
@@ -26,6 +50,7 @@ router.post (
 
 router.put(
   "/alumnos/:alumnos_id/materias/:materias_id",
+  verificarAutenticacion,
   validarAlumnosId,
   validarMateriasId,
   verificarValidaciones,
@@ -33,6 +58,7 @@ router.put(
 
 router.delete(
   "/alumnos/:alumnos_id/materias/:materias_id",
+  verificarAutenticacion,
   validarAlumnosId,
   validarMateriasId,
   verificarValidaciones,
@@ -43,7 +69,7 @@ async function getnotas(req, res) {
   const materias_id = Number(req.params.materias_id);
 
   let sql =
-    "SELECT ur.alumnos_id, ur.materias_id, u.nombre AS alumno, r.nombre AS materia, ur.nota1, ur.nota2, ur.nota3 \
+    "SELECT ur.alumnos_id, ur.materias_id, u.nombre, u.apellido, r.nombre AS materia, ur.nota1, ur.nota2, ur.nota3 \
      FROM notas ur \
      JOIN alumnos u ON ur.alumnos_id=u.id \
      JOIN materias r ON ur.materias_id=r.id \

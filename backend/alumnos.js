@@ -8,7 +8,15 @@ const router = express.Router();
 
 
 router.get("/", verificarAutenticacion, async (req, res) => {
-  const [rows] = await db.execute("SELECT * FROM alumnos");
+  const { buscar } = req.query;
+  let rows;
+
+  if (buscar) {
+    [rows] = await db.execute("SELECT * FROM alumnos WHERE nombre LIKE ? OR apellido LIKE ?", [`%${buscar}%`, `%${buscar}%`]);
+  } else {
+    [rows] = await db.execute("SELECT * FROM alumnos");
+  }
+
   res.json({
     success: true,
     data: rows,
