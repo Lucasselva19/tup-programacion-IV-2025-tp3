@@ -55,7 +55,51 @@ router.post(
   }
 );
 
-router.put("/:id", (req, res) => {});
-router.delete("/:id", (req, res) => {});
+router.put(
+  "/:id",
+  validarId,
+  body("nombre").isAlphanumeric("es-ES").isLength({ max: 50 }),
+  body("año").isNumeric().isLength({ min: 4, max: 4 }),
+  body("codigo").isNumeric(),
+  verificarValidaciones, 
+  async(req, res) => {
+    const id = Number(req.params.id);
+    const { nombre, año, codigo } = req.body;
+
+    const [result] = await db.execute(
+      "UPDATE materias SET nombre=?, año=?, codigo=? WHERE id=?",
+      [nombre, año, codigo, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Materia no encontrada" });
+    }
+
+    res.json({
+      success: true,
+      data: { id, nombre, año, codigo },
+    });
+  });
+
+router.delete(
+  "/:id",
+  validarId,
+  verificarValidaciones,
+  async (req, res) => {
+    const id = Number(req.params.id);
+
+    const [result] = await db.execute("DELETE FROM materias WHERE id=?", [id]);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Materia no encontrada" });
+    }
+
+    res.json({ success: true, message: "Materia eliminada con éxito." });
+  }
+);
 
 export default router;

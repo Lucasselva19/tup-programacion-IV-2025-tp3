@@ -6,7 +6,7 @@ POST {{url}}/auth/login
 Content-Type: application/json
 
 {
-    "nombre": "Lucas",
+    "mail": "lucasselvaipmb@gmail.com",
     "password": "chapalucas1331"
 }
 
@@ -18,7 +18,7 @@ GET {{url}}/usuarios
 Authorization: Bearer {{token}}
 
 ### Consultar por un usuario
-GET {{url}}/usuarios/1
+GET {{url}}/usuarios/2
 Authorization: Bearer {{token}}
 
 ### Crear usuario

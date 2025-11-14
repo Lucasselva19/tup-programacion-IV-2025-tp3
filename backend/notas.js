@@ -2,6 +2,7 @@ import express from "express";
 import { verificarValidaciones } from "./validaciones.js";
 import { param } from "express-validator";
 import { db } from "./db.js";
+import { verificarAutenticacion } from "./auth.js";
 
 const router = express.Router();
 
@@ -16,7 +17,26 @@ router.get(
   getnotas
 );
 
-router.post ("/", crearNota);
+router.post (
+  "/alumnos/:alumnos_id/materias/:materias_id",
+  validarAlumnosId,
+  validarMateriasId,
+  verificarValidaciones,
+  crearNota);
+
+router.put(
+  "/alumnos/:alumnos_id/materias/:materias_id",
+  validarAlumnosId,
+  validarMateriasId,
+  verificarValidaciones,
+  modificarNota);
+
+router.delete(
+  "/alumnos/:alumnos_id/materias/:materias_id",
+  validarAlumnosId,
+  validarMateriasId,
+  verificarValidaciones,
+  borrarNota);
 
 async function getnotas(req, res) {
   const alumnos_id = Number(req.params.alumnos_id);
@@ -40,8 +60,12 @@ async function getnotas(req, res) {
   res.json({ success: true, data: rows[0] });
 }
 
+
+
 async function crearNota(req, res) {
-    const { alumnos_id, materias_id, nota1, nota2, nota3 } = req.body;
+    const alumnos_id = Number(req.params.alumnos_id);
+    const materias_id = Number(req.params.materias_id);
+    const { nota1, nota2, nota3 } = req.body;
 
     let sql = "INSERT INTO notas (alumnos_id, materias_id, nota1, nota2, nota3) VALUES (?, ?, ?, ?, ?)";
     const params = [alumnos_id, materias_id, nota1, nota2, nota3];
@@ -50,17 +74,55 @@ async function crearNota(req, res) {
       
       return res.status(201).json({ 
         success: true, 
-          message: "Nota creada con éxito", 
-          id: result.insertId 
+        message: "Nota creada con éxito", 
+        id: result.insertId 
       });
+    }
+    
+
+
+async function modificarNota(req, res) {
+    const alumnos_id = Number(req.params.alumnos_id);
+    const materias_id = Number(req.params.materias_id);
+    const { nota1, nota2, nota3 } = req.body;
+
+    let sql = "UPDATE notas SET nota1=?, nota2=?, nota3=? WHERE alumnos_id=? AND materias_id=?";
+    const params = [nota1, nota2, nota3, alumnos_id, materias_id];
+
+    try {
+        const [result] = await db.execute(sql, params);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Nota no encontrada para actualizar." });
+        }
+
+        return res.status(200).json({ success: true, message: "Nota actualizada con éxito." });
+
+    } catch (error) {
+        console.error("Error en la consulta PUT:", error);
+        return res.status(500).json({ success: false, message: "Error interno del servidor al actualizar la nota." });
+    }
 }
 
+async function borrarNota(req, res) {
+    const alumnos_id = Number(req.params.alumnos_id);
+    const materias_id = Number(req.params.materias_id);
 
-router.put("/alumnos/:alumnos_id/materias/:materias_id", (req, res) => {});
+    let sql = "DELETE FROM notas WHERE alumnos_id=? AND materias_id=?";
+    
+    try {
+        const [result] = await db.execute(sql, [alumnos_id, materias_id]); // Corregido para usar los IDs de params
 
-router.delete("/alumnos/:alumnos_id", (req, res) => {});
-router.delete("/materias/:materias_id", (req, res) => {});
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: "Nota no encontrada para eliminar." });
+        }
 
-router.delete("/alumnos/:alumnos_id/materias/:materias_id", (req, res) => {});
+        return res.status(204).send(); 
+
+    } catch (error) {
+        console.error("Error en la consulta DELETE:", error);
+        return res.status(500).json({ success: false, message: "Error interno del servidor al eliminar la nota." });
+    }
+}
 
 export default router;

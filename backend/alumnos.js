@@ -6,6 +6,7 @@ import { verificarAutenticacion } from "./auth.js";
 
 const router = express.Router();
 
+
 router.get("/", verificarAutenticacion, async (req, res) => {
   const [rows] = await db.execute("SELECT * FROM alumnos");
   res.json({
@@ -58,7 +59,50 @@ router.post(
   }
 );
 
-router.put("/:id", (req, res) => {});
-router.delete("/:id", (req, res) => {});
+router.put(
+  "/:id",
+  verificarAutenticacion,
+  validarId,
+  verificarValidaciones, 
+  async(req, res) => {
+    const id = Number(req.params.id);
+    const { nombre, apellido, dni } = req.body;
+
+    const [result] = await db.execute(
+      "UPDATE alumnos SET nombre=?, apellido=?, dni=? WHERE id=?",
+      [nombre, apellido, dni, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Alumno no encontrado" });
+    }
+
+    res.json({
+      success: true,
+      data: { id, nombre, apellido, dni },
+    });
+  });
+
+router.delete(
+  "/:id",
+  verificarAutenticacion,
+  validarId,
+  verificarValidaciones,
+  async (req, res) => {
+    const id = Number(req.params.id);
+
+    const [result] = await db.execute("DELETE FROM alumnos WHERE id=?", [id]);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Alumno no encontrado" });
+    }
+
+    res.json({ success: true, message: "Alumno eliminado con éxito." });
+  }
+);
 
 export default router;

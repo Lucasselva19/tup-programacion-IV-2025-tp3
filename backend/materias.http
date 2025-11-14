@@ -2,15 +2,28 @@
 
 GET {{url}}/materias
 
-### Consultar por un alumno
+### Consultar por una materia
 GET {{url}}/materias/2
 
-### Crear alumno
+### Crear materia
 POST {{url}}/materias
 Content-Type: application/json
 
 {
-    "nombre":"Lengua",
+    "nombre":"Bioquimica",
     "año": "2025",
-    "codigo": "4827569"
+    "codigo": "4887569"
 }
+
+### Modificar materia 
+PUT {{url}}/materias/3
+Content-Type: application/json
+
+{
+    "nombre":"Biologia",
+    "año": "2024",
+    "codigo": "1234567"
+}
+
+### Eliminar materia
+DELETE {{url}}/materias/4

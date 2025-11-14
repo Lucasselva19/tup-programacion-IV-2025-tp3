@@ -6,10 +6,11 @@ POST {{url}}/auth/login
 Content-Type: application/json
 
 {
-    "nombre": "Lucas",
+    "mail": "lucasselvaipmb@gmail.com",
     "password": "chapalucas1331"
 }
 
+###
 
 @token = {{login.response.body.token}}
 
@@ -27,7 +28,22 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nombre":"Lebron",
-    "apellido": "Vildoza",
-    "dni": "47045338"
+    "nombre":"Jero",
+    "apellido": "Pizarro",
+    "dni": "47045339"
 }
+
+### Modificar alumno
+PUT {{url}}/alumnos/5
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre":"Lionel",
+    "apellido": "Messi",
+    "dni": "47045332"
+}
+
+### Eliminar alumno
+DELETE {{url}}/alumnos/5
+Authorization: Bearer {{token}}
