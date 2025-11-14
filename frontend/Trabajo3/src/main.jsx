@@ -15,9 +15,6 @@ import { ModificarMateria } from "./ModificarMateria.jsx";
 import { AgregarNota } from "./AgregarNota.jsx";
 import { ModificarNota } from "./ModificarNota.jsx";
 
-
-
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>

@@ -15,6 +15,9 @@ export const Registrarse = () => {
     const result = await register(nombre, mail, password);
     if (result.success) {
       setOpen(false);
+      setNombre("");
+      setMail("");
+      setPassword("");
       window.alert("¡Usuario registrado con éxito! Ahora puedes ingresar.");
     }
   };
@@ -44,6 +47,7 @@ export const Registrarse = () => {
                 name="password"
                 type="password"
                 value={password}
+                placeholder="Mínimo 8 caracteres, una minuscula y un número"
                 onChange={(e) => setPassword(e.target.value)}
               />
               {error && <p style={{ color: "red" }}>{error}</p>}

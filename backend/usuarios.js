@@ -39,7 +39,6 @@ router.get(
 
 router.post(
   "/",
-  verificarAutenticacion,
   body("nombre").isAlpha("es-ES").isLength({ max: 50 }),
   body("mail").isEmail().isLength({ max: 50 }),
   body("password").isStrongPassword({

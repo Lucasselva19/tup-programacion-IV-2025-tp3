@@ -53,10 +53,11 @@ export const AgregarNota = () => {
 
     const data = await response.json();
 
-    if (!response.ok || !data.success) {
-      if (response.status === 400) {
+    if (!response.ok) {
+      if (data.errores) {
         return setErrores(data.errores);
       }
+      setErrores([{ msg: data.message || "Error al crear la nota" }]);
       return window.alert(data.message || "Error al crear la nota");
     }
     navigate("/notas");

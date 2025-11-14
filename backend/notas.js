@@ -12,7 +12,7 @@ const validarMateriasId = param("materias_id").isInt({ min: 1 });
 
 router.get("/", verificarAutenticacion, async (req, res) => {
   const { buscar } = req.query;
-  let sql = "SELECT ur.alumnos_id, ur.materias_id, u.nombre, u.apellido, r.nombre AS materia, ur.nota1, ur.nota2, ur.nota3 FROM notas ur JOIN alumnos u ON ur.alumnos_id=u.id JOIN materias r ON ur.materias_id=r.id";
+  let sql = "SELECT ur.alumnos_id, ur.materias_id, u.nombre, u.apellido, r.nombre AS materia, ur.nota1, ur.nota2, ur.nota3 FROM notas ur JOIN alumnos u ON ur.alumnos_id=u.id JOIN materias r ON ur.materias_id=r.id ORDER BY u.nombre, u.apellido";
   let params = [];
 
   if (buscar) {
@@ -93,17 +93,25 @@ async function crearNota(req, res) {
     const materias_id = Number(req.params.materias_id);
     const { nota1, nota2, nota3 } = req.body;
 
+    const [verificarNotasExistentes] = await db.execute(
+      "SELECT 1 FROM notas WHERE alumnos_id = ? AND materias_id = ?",
+      [alumnos_id, materias_id]
+    );
+
+    if (verificarNotasExistentes.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "Ya existen notas para este alumno en esta materia.",
+      });
+    }
+
     let sql = "INSERT INTO notas (alumnos_id, materias_id, nota1, nota2, nota3) VALUES (?, ?, ?, ?, ?)";
     const params = [alumnos_id, materias_id, nota1, nota2, nota3];
 
       const [result] = await db.execute(sql, params);
       
-      return res.status(201).json({ 
-        success: true, 
-        message: "Nota creada con éxito", 
-        id: result.insertId 
-      });
-    }
+      return res.status(201).json({ success: true, message: "Nota creada con éxito", id: result.insertId });
+}
     
 
 
@@ -137,7 +145,7 @@ async function borrarNota(req, res) {
     let sql = "DELETE FROM notas WHERE alumnos_id=? AND materias_id=?";
     
     try {
-        const [result] = await db.execute(sql, [alumnos_id, materias_id]); // Corregido para usar los IDs de params
+        const [result] = await db.execute(sql, [alumnos_id, materias_id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ success: false, message: "Nota no encontrada para eliminar." });

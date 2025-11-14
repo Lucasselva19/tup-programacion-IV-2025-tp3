@@ -22,8 +22,8 @@ export const AuthProvider = ({ children }) => {
 
       const session = await response.json();
 
-      if (!response.ok && response.status === 400) {
-        throw new Error(session.error);
+      if (!response.ok) {
+        throw new Error(session.error || session.message || "Error en el inicio de sesión.");
       }
 
       setToken(session.token);
@@ -44,18 +44,11 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ nombre, mail, password }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Error en el registro.");
-        // Si la respuesta no es OK, intenta leer el cuerpo como texto.
-        // Esto captura errores como "Unauthorized" que no son JSON.
-        const errorText = await response.text();
-        throw new Error(errorText || "Error en el registro.");
+        const errorData = await response.json().catch(() => ({ message: "Error en el registro. Intente de nuevo." }));
+        throw new Error(errorData.message || errorData.error || "Error en el registro.");
       }
 
-      // Si la respuesta es OK, se espera que sea JSON.
-      await response.json();
       return { success: true };
     } catch (err) {
       setError(err.message);
@@ -98,7 +91,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Muestra un mensaje si el usuario no esta logeado
 export const AuthPage = ({ children }) => {
   const { isAuthenticated } = useAuth();
 

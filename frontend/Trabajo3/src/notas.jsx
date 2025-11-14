@@ -48,7 +48,7 @@ export function Notas() {
         Nueva nota
       </Link>
       <div className="group">
-        <input value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Buscar por alumno o materia..." />
+        <input value={buscar} onChange={(e) => setBuscar(e.target.value)}/>
         <button onClick={() => fetchNotas(buscar)}>Buscar</button>
       </div>
       <table>

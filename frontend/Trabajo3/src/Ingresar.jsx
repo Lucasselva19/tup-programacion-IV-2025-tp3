@@ -2,14 +2,21 @@ import { useState } from "react";
 import { useAuth } from "./Auth";
 
 export const Ingresar = () => {
-  const { error, login } = useAuth();
+  const { error: authError, login } = useAuth();
 
   const [open, setOpen] = useState(false);
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+
+    if (!mail || !password) {
+      setError("El mail y la contraseña son obligatorios.");
+      return;
+    }
 
     const result = await login(mail, password);
     if (result.success) {
@@ -39,6 +46,7 @@ export const Ingresar = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               {error && <p style={{ color: "red" }}>{error}</p>}
+              {authError && !error && <p style={{ color: "red" }}>{authError}</p>}
             </fieldset>
             <footer>
               <div className="grid">
